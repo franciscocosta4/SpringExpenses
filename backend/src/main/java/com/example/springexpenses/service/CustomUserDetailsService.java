@@ -20,7 +20,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         //alinhamento: username = email
         User user = userRepository.findByEmail(email);
-
+        
         if (user == null) {
             throw new UsernameNotFoundException("User não encontrado");
         }

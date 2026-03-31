@@ -9,4 +9,5 @@ import org.springframework.data.jpa.repository.JpaRepository; // Interface base 
 public interface UserRepository extends JpaRepository<User, Long> {
      //necessário para login com email
     User findByEmail(String email);
+    
 }

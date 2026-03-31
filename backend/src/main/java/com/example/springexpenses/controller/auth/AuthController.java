@@ -43,24 +43,23 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-public ResponseEntity<?> login(@RequestBody User user, HttpServletRequest request) {
+    public ResponseEntity<?> login(@RequestBody User user, HttpServletRequest request) {
 
-    Authentication authentication = authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(
-                    user.getEmail(),
-                    user.getPassword()));
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        user.getEmail(),
+                        user.getPassword()));
 
-    SecurityContextHolder.getContext().setAuthentication(authentication);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
-    // Guarda o contexto NA sessão — isto é o que faltava
-    HttpSession session = request.getSession(true);
-    session.setAttribute(
-        HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
-        SecurityContextHolder.getContext()
-    );
+        // Guarda o contexto NA sessão — isto é o que faltava
+        HttpSession session = request.getSession(true);
+        session.setAttribute(
+                HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+                SecurityContextHolder.getContext());
 
-    return ResponseEntity.ok("Login com sucesso");
-}
+        return ResponseEntity.ok("Login com sucesso");
+    }
 
     @GetMapping("/dashboard")
     public ResponseEntity<String> getDashboardData(Authentication authentication) {

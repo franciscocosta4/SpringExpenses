@@ -33,6 +33,10 @@ public class User implements UserDetails {
     @CreatedDate
     private LocalDateTime createdAt;
 
+
+    @OneToMany(mappedBy = "user")
+    private List<Income> incomes;
+
     // UserDetails — obrigatório implementar:
 
     @Override
@@ -41,10 +45,13 @@ public class User implements UserDetails {
     }
 
     @Override
-    public String getUsername() {
+    public String  getUsername() {
         return email;
     } // login feito por email
 
+    public Long getId() {
+    return id;
+    }
     @Override
     public boolean isAccountNonExpired() {
         return true;
@@ -96,5 +103,10 @@ public class User implements UserDetails {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public User orElseThrow(Object object) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'orElseThrow'");
     }
 }
