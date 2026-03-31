@@ -1,0 +1,243 @@
+@import './global.css';
+
+.register-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-base);
+  position: relative;
+  overflow: hidden;
+}
+
+.register-page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(232, 52, 42, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(232, 52, 42, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  z-index: 0;
+  animation: gridPan 30s linear infinite;
+}
+
+@keyframes gridPan {
+  0% { background-position: 0 0; }
+  100% { background-position: 40px 40px; }
+}
+
+.register-page::after {
+  content: '';
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: 3px;
+  height: 100%;
+  background: linear-gradient(to bottom, transparent, var(--red), var(--green), transparent);
+  z-index: 1;
+}
+
+.register-container {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 420px;
+  padding: 0 20px;
+  animation: fadeInUp 0.5s ease forwards;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.register-brand {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.register-brand-ticker {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: var(--red);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.register-brand-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 36px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.register-brand-name span {
+  color: var(--green);
+}
+
+.register-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--red);
+  padding: 36px;
+  position: relative;
+}
+
+.register-card::before {
+  content: 'NEW_ACCOUNT';
+  position: absolute;
+  top: -10px;
+  left: 16px;
+  background: var(--bg-panel);
+  padding: 0 8px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  color: var(--red);
+  letter-spacing: 2px;
+}
+
+.register-card-corner {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+}
+
+.register-card-corner--bl {
+  bottom: -1px;
+  left: -1px;
+  border-bottom: 2px solid var(--green);
+  border-left: 2px solid var(--green);
+}
+
+.register-form-group {
+  margin-bottom: 18px;
+}
+
+.register-label {
+  display: block;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.register-input {
+  width: 100%;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-left: 2px solid var(--border-bright);
+  color: var(--text-primary);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 14px;
+  padding: 12px 14px;
+  outline: none;
+  transition: all 0.2s ease;
+  letter-spacing: 1px;
+}
+
+.register-input::placeholder {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.register-input:focus {
+  border-color: var(--red);
+  border-left-color: var(--red);
+  background: rgba(232, 52, 42, 0.03);
+  box-shadow: 0 0 20px var(--red-glow);
+}
+
+.register-message {
+  padding: 10px 14px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  margin-bottom: 16px;
+  letter-spacing: 0.5px;
+}
+
+.register-message--error {
+  background: rgba(232, 52, 42, 0.08);
+  border: 1px solid var(--red-dim);
+  border-left: 3px solid var(--red);
+  color: var(--red);
+}
+
+.register-message--success {
+  background: rgba(0, 212, 164, 0.08);
+  border: 1px solid var(--green-dim);
+  border-left: 3px solid var(--green);
+  color: var(--green);
+}
+
+.register-btn {
+  width: 100%;
+  background: transparent;
+  border: 1px solid var(--red);
+  color: var(--red);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  padding: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.register-btn::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 100%;
+  background: var(--red);
+  transition: width 0.2s ease;
+  z-index: -1;
+}
+
+.register-btn:hover {
+  color: var(--text-primary);
+  box-shadow: 0 0 30px var(--red-glow);
+}
+
+.register-btn:hover::before {
+  width: 100%;
+}
+
+.register-footer {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.register-footer a {
+  color: var(--green);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.register-footer a:hover {
+  color: var(--text-primary);
+}
+
+.register-status-bar {
+  margin-top: 40px;
+  display: flex;
+  justify-content: space-between;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+}
