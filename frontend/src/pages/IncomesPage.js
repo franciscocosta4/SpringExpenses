@@ -4,7 +4,7 @@ import "../DashboardPage.css";
 import "../IncomesPage.css";
 
 const API = "http://localhost:8080";
-const INCOME_TYPES = ["salário", "freelance", "investimento", "aluguer", "presente", "outro"];
+
 
 function formatEur(n) {
   if (n == null) return "—";
@@ -82,7 +82,7 @@ export default function IncomesPage({ setAuth }) {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ description: desc, amount: parseFloat(amount), date, type }),
+        body: JSON.stringify({ description: desc, amount: parseFloat(amount), date }),
       });
       if (res.ok) {
         setDesc(""); setAmount(""); setDate(new Date().toISOString().split("T")[0]); setType("salário");
@@ -122,8 +122,8 @@ export default function IncomesPage({ setAuth }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...editData, amount: parseFloat(editData.amount) }),
       });
-      if (res.ok) { fetchIncomes(); setEditId(null); showToast("Receita actualizada"); }
-      else showToast("Erro ao actualizar", "error");
+      if (res.ok) { fetchIncomes(); setEditId(null); showToast("Receita atualizada"); }
+      else showToast("Erro ao atualizar", "error");
     } catch { showToast("Erro de conexão", "error"); }
   };
 
@@ -205,7 +205,7 @@ export default function IncomesPage({ setAuth }) {
               <div className="income-stat-sub">{incomes.length} entradas</div>
             </div>
             <div className="income-stat-card">
-              <div className="income-stat-label">Filtro actual</div>
+              <div className="income-stat-label">Filtro atual</div>
               <div className="income-stat-value">{formatEur(totalFiltered)}</div>
               <div className="income-stat-sub">{filtered.length} registos</div>
             </div>
@@ -252,18 +252,6 @@ export default function IncomesPage({ setAuth }) {
                     required
                   />
                 </div>
-                <div className="form-field">
-                  <label className="form-field-label">Tipo</label>
-                  <select
-                    className="form-field-select"
-                    value={type}
-                    onChange={(e) => setType(e.target.value)}
-                  >
-                    {INCOME_TYPES.map((t) => (
-                      <option key={t} value={t}>{t}</option>
-                    ))}
-                  </select>
-                </div>
                 <button className="form-submit-btn form-submit-btn--income" type="submit" disabled={submitting}>
                   {submitting ? "..." : "+ ADD"}
                 </button>
@@ -279,16 +267,6 @@ export default function IncomesPage({ setAuth }) {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-            <select
-              className="filter-select"
-              value={filterType}
-              onChange={(e) => setFilterType(e.target.value)}
-            >
-              <option value="todos">Todos os tipos</option>
-              {INCOME_TYPES.map((t) => (
-                <option key={t} value={t}>{t}</option>
-              ))}
-            </select>
             <span className="filter-count">
               {filtered.length} registo{filtered.length !== 1 ? "s" : ""}
             </span>
@@ -341,15 +319,6 @@ export default function IncomesPage({ setAuth }) {
                             value={editData.description}
                             onChange={(e) => setEditData({ ...editData, description: e.target.value })}
                           />
-                        </td>
-                        <td>
-                          <select
-                            className="inline-input"
-                            value={editData.type}
-                            onChange={(e) => setEditData({ ...editData, type: e.target.value })}
-                          >
-                            {INCOME_TYPES.map((t) => <option key={t}>{t}</option>)}
-                          </select>
                         </td>
                         <td>
                           <input

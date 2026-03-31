@@ -1,6 +1,7 @@
 package com.example.springexpenses.model;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import org.springframework.data.annotation.CreatedDate;
@@ -21,7 +22,7 @@ public class Income {
     private BigDecimal  amount;   
 
     @Column(nullable = false, updatable = false)
-    private LocalDateTime date;
+    private LocalDate date;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -42,10 +43,10 @@ public class Income {
         this.amount = a;
     }
 
-    public LocalDateTime getDate() {
+    public LocalDate getDate() {
         return date;
     }
-    public void setDate( LocalDateTime date) {
+    public void setDate( LocalDate date) {
         this.date = date;
     }
     
