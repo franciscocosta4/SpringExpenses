@@ -10,7 +10,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import jakarta.persistence.*;
 
 @Entity
-//liga a entidade a um “listener” que reage a eventos do ciclo de vida da entidade
+// liga a entidade a um “listener” que reage a eventos do ciclo de vida da
+// entidade
 @EntityListeners(AuditingEntityListener.class) // ou seja, vai preencher o created_at
 @Table(name = "income")
 public class Income {
@@ -19,7 +20,7 @@ public class Income {
     private Long id;
 
     @Column(nullable = false)
-    private BigDecimal  amount;   
+    private BigDecimal amount;
 
     @Column(nullable = false, updatable = false)
     private LocalDate date;
@@ -33,12 +34,23 @@ public class Income {
     private LocalDateTime createdAt;
 
     // getters / setters normais
+
+    public Long getId() {
+        return id;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
     public void setUser(User user) {
-    this.user = user;
-}
+        this.user = user;
+    }
+
     public BigDecimal getAmount() {
         return amount;
     }
+
     public void setAmount(BigDecimal a) {
         this.amount = a;
     }
@@ -46,16 +58,17 @@ public class Income {
     public LocalDate getDate() {
         return date;
     }
-    public void setDate( LocalDate date) {
+
+    public void setDate(LocalDate date) {
         this.date = date;
     }
-    
+
     public LocalDateTime getcreatedAt() {
         return createdAt;
     }
+
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
-
 
 }

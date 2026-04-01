@@ -5,7 +5,6 @@ import "../IncomesPage.css";
 
 const API = "http://localhost:8080";
 
-
 function formatEur(n) {
   if (n == null) return "—";
   return new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" }).format(n);
@@ -21,19 +20,58 @@ function Toast({ msg, type, onDone }) {
     const t = setTimeout(onDone, 2500);
     return () => clearTimeout(t);
   }, [onDone]);
+  return <div className={`toast ${type === "error" ? "toast--error" : ""}`}>{msg}</div>;
+}
+
+// Cada modal tem o seu próprio estado local — sem conflitos
+function EditModal({ income, onSave, onClose }) {
+  const [amount, setAmount] = useState(income.amount);
+  const [date, setDate] = useState(income.date ? income.date.split("T")[0] : "");
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = async () => {
+    setSaving(true);
+    await onSave(income.id, { amount: parseFloat(amount), date });
+    setSaving(false);
+  };
+
   return (
-    <div
-      style={{
-        position: "fixed", bottom: 24, right: 24,
-        background: "var(--bg-panel)", border: "1px solid var(--border)",
-        borderLeft: `3px solid ${type === "error" ? "var(--red)" : "var(--green)"}`,
-        padding: "12px 20px",
-        fontFamily: "Share Tech Mono", fontSize: 12, color: "var(--text-primary)",
-        letterSpacing: "0.5px", zIndex: 999,
-        animation: "slideIn 0.3s ease both",
-      }}
-    >
-      {msg}
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header">
+          <span className="modal-title">EDITAR RECEITA</span>
+          <button className="modal-close" onClick={onClose}>✕</button>
+        </div>
+        <div className="modal-body">
+          <div className="form-field">
+            <label className="form-field-label">Valor (€)</label>
+            <input
+              className="form-field-input"
+              type="number"
+              step="0.01"
+              min="0"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              autoFocus
+            />
+          </div>
+          <div className="form-field" style={{ marginTop: 14 }}>
+            <label className="form-field-label">Data</label>
+            <input
+              className="form-field-input"
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+            />
+          </div>
+        </div>
+        <div className="modal-footer">
+          <button className="modal-btn modal-btn--cancel" onClick={onClose}>Cancelar</button>
+          <button className="modal-btn modal-btn--save" onClick={handleSave} disabled={saving}>
+            {saving ? "A guardar..." : "✓ Guardar"}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -43,30 +81,24 @@ export default function IncomesPage({ setAuth }) {
   const [loading, setLoading] = useState(true);
   const [formOpen, setFormOpen] = useState(true);
   const [toast, setToast] = useState(null);
+  const [editTarget, setEditTarget] = useState(null);
 
-  // Form
-  const [desc, setDesc] = useState("");
+  // Form novo registo
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
-  const [type, setType] = useState("salário");
   const [submitting, setSubmitting] = useState(false);
 
-  // Filters
+  // Filtros
   const [search, setSearch] = useState("");
-  const [filterType, setFilterType] = useState("todos");
   const [sortField, setSortField] = useState("date");
   const [sortDir, setSortDir] = useState("desc");
-
-  // Edit
-  const [editId, setEditId] = useState(null);
-  const [editData, setEditData] = useState({});
 
   const showToast = (msg, type = "ok") => setToast({ msg, type });
 
   const fetchIncomes = useCallback(() => {
     setLoading(true);
     fetch(`${API}/incomes`, { credentials: "include" })
-      .then((r) => r.ok ? r.json() : [])
+      .then((r) => (r.ok ? r.json() : []))
       .then((data) => setIncomes(Array.isArray(data) ? data : []))
       .catch(() => setIncomes([]))
       .finally(() => setLoading(false));
@@ -82,17 +114,21 @@ export default function IncomesPage({ setAuth }) {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ description: desc, amount: parseFloat(amount), date }),
+        body: JSON.stringify({ amount: parseFloat(amount), date }),
       });
       if (res.ok) {
-        setDesc(""); setAmount(""); setDate(new Date().toISOString().split("T")[0]); setType("salário");
+        setAmount("");
+        setDate(new Date().toISOString().split("T")[0]);
         fetchIncomes();
-        showToast("Receita adicionada com sucesso");
+        showToast("Receita adicionada");
       } else {
-        showToast(await res.text() || "Erro ao adicionar", "error");
+        showToast((await res.text()) || "Erro ao adicionar", "error");
       }
-    } catch { showToast("Erro de conexão", "error"); }
-    finally { setSubmitting(false); }
+    } catch {
+      showToast("Erro de conexão", "error");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleDelete = async (id) => {
@@ -101,43 +137,37 @@ export default function IncomesPage({ setAuth }) {
       const res = await fetch(`${API}/incomes/${id}`, { method: "DELETE", credentials: "include" });
       if (res.ok) { fetchIncomes(); showToast("Receita eliminada"); }
       else showToast("Erro ao eliminar", "error");
-    } catch { showToast("Erro de conexão", "error"); }
+    } catch {
+      showToast("Erro de conexão", "error");
+    }
   };
 
-  const startEdit = (inc) => {
-    setEditId(inc.id);
-    setEditData({
-      description: inc.description || inc.source || "",
-      amount: inc.amount,
-      date: inc.date ? inc.date.split("T")[0] : "",
-      type: inc.type || "outro",
-    });
-  };
-
-  const handleSaveEdit = async (id) => {
+  const handleSaveEdit = async (id, data) => {
+    console.log(id);
     try {
       const res = await fetch(`${API}/incomes/${id}`, {
         method: "PUT",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...editData, amount: parseFloat(editData.amount) }),
+        body: JSON.stringify(data),
       });
-      if (res.ok) { fetchIncomes(); setEditId(null); showToast("Receita atualizada"); }
+      if (res.ok) { fetchIncomes(); setEditTarget(null); showToast("Receita atualizada"); }
       else showToast("Erro ao atualizar", "error");
-    } catch { showToast("Erro de conexão", "error"); }
+    } catch {
+      showToast("Erro de conexão", "error");
+    }
   };
 
   const toggleSort = (field) => {
-    if (sortField === field) setSortDir(d => d === "asc" ? "desc" : "asc");
+    if (sortField === field) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
     else { setSortField(field); setSortDir("desc"); }
   };
 
   const filtered = incomes
     .filter((i) => {
-      const label = i.description || i.source || "";
-      const matchSearch = !search || label.toLowerCase().includes(search.toLowerCase());
-      const matchType = filterType === "todos" || (i.type || "outro") === filterType;
-      return matchSearch && matchType;
+      if (!search) return true;
+      const label = i.description || i.source || formatDate(i.date);
+      return label.toLowerCase().includes(search.toLowerCase());
     })
     .sort((a, b) => {
       let va = a[sortField], vb = b[sortField];
@@ -148,18 +178,13 @@ export default function IncomesPage({ setAuth }) {
     });
 
   const total30 = incomes
-    .filter((i) => {
-      if (!i.date) return false;
-      const d = new Date(i.date);
-      const diff = (new Date() - d) / (1000 * 60 * 60 * 24);
-      return diff <= 30;
-    })
+    .filter((i) => i.date && (new Date() - new Date(i.date)) / 86400000 <= 30)
     .reduce((s, i) => s + (parseFloat(i.amount) || 0), 0);
 
   const totalAll = incomes.reduce((s, i) => s + (parseFloat(i.amount) || 0), 0);
   const totalFiltered = filtered.reduce((s, i) => s + (parseFloat(i.amount) || 0), 0);
 
-  const time = new Date();
+  const now = new Date();
   const formatTime = (d) => d.toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
   const formatFullDate = (d) => d.toLocaleDateString("pt-PT", { weekday: "short", day: "2-digit", month: "short", year: "numeric" });
 
@@ -177,12 +202,11 @@ export default function IncomesPage({ setAuth }) {
               <span className="topbar-live-dot" />
               LIVE
             </div>
-            <div className="topbar-date">{formatTime(time)} · {formatFullDate(time)}</div>
+            <div className="topbar-date">{formatTime(now)} · {formatFullDate(now)}</div>
           </div>
         </div>
 
         <div className="incomes-content">
-          {/* Page header */}
           <div className="page-header">
             <div className="page-header-left">
               <div className="page-header-eyebrow">Gestão Financeira</div>
@@ -192,7 +216,6 @@ export default function IncomesPage({ setAuth }) {
             </div>
           </div>
 
-          {/* Stats summary */}
           <div className="income-stats-row">
             <div className="income-stat-card">
               <div className="income-stat-label">Últimos 30 dias</div>
@@ -211,24 +234,13 @@ export default function IncomesPage({ setAuth }) {
             </div>
           </div>
 
-          {/* Add Form */}
           <div className="form-panel form-panel--income" data-label="ADD_INCOME">
-            <div className="form-panel-header" onClick={() => setFormOpen(o => !o)}>
+            <div className="form-panel-header" onClick={() => setFormOpen((o) => !o)}>
               <span className="form-panel-header-title">Nova Receita</span>
               <span className={`form-panel-toggle ${formOpen ? "open" : ""}`}>▼</span>
             </div>
             {formOpen && (
               <form className="form-panel-body" onSubmit={handleAdd}>
-                <div className="form-field">
-                  <label className="form-field-label">Descrição</label>
-                  <input
-                    className="form-field-input"
-                    placeholder="Ex: Salário Março"
-                    value={desc}
-                    onChange={(e) => setDesc(e.target.value)}
-                    required
-                  />
-                </div>
                 <div className="form-field">
                   <label className="form-field-label">Valor (€)</label>
                   <input
@@ -259,11 +271,10 @@ export default function IncomesPage({ setAuth }) {
             )}
           </div>
 
-          {/* Filters */}
           <div className="filters-row">
             <input
               className="filter-search"
-              placeholder="🔍 Pesquisar descrição..."
+              placeholder="🔍 Pesquisar..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -272,7 +283,6 @@ export default function IncomesPage({ setAuth }) {
             </span>
           </div>
 
-          {/* Table */}
           <div className="incomes-table-panel">
             <div className="incomes-table-header">
               <span className="incomes-table-title">Histórico de Receitas</span>
@@ -282,9 +292,7 @@ export default function IncomesPage({ setAuth }) {
             </div>
 
             {loading ? (
-              <div style={{ padding: 32, textAlign: "center", fontFamily: "Share Tech Mono", fontSize: 12, color: "var(--text-muted)", letterSpacing: 1 }}>
-                A carregar...
-              </div>
+              <div className="table-empty">A carregar...</div>
             ) : filtered.length === 0 ? (
               <div className="empty-state">
                 <div className="empty-state-icon">↑</div>
@@ -294,15 +302,12 @@ export default function IncomesPage({ setAuth }) {
               <table className="incomes-table">
                 <thead>
                   <tr>
-                    <th onClick={() => toggleSort("description")} className={sortField === "description" ? "sorted" : ""}>
-                      Descrição {sortField === "description" ? (sortDir === "asc" ? "↑" : "↓") : ""}
-                    </th>
-                    <th onClick={() => toggleSort("type")} className={sortField === "type" ? "sorted" : ""}>
-                      Tipo {sortField === "type" ? (sortDir === "asc" ? "↑" : "↓") : ""}
-                    </th>
                     <th onClick={() => toggleSort("date")} className={sortField === "date" ? "sorted" : ""}>
                       Data {sortField === "date" ? (sortDir === "asc" ? "↑" : "↓") : ""}
                     </th>
+                    {/* <th onClick={() => toggleSort("amount")} className={sortField === "amount" ? "sorted" : ""}>
+                      id {sortField === "amount" ? (sortDir === "asc" ? "↑" : "↓") : ""}
+                    </th> */}
                     <th onClick={() => toggleSort("amount")} className={sortField === "amount" ? "sorted" : ""}>
                       Valor {sortField === "amount" ? (sortDir === "asc" ? "↑" : "↓") : ""}
                     </th>
@@ -310,62 +315,22 @@ export default function IncomesPage({ setAuth }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {filtered.map((inc) =>
-                    editId === inc.id ? (
-                      <tr key={inc.id}>
-                        <td>
-                          <input
-                            className="inline-input"
-                            value={editData.description}
-                            onChange={(e) => setEditData({ ...editData, description: e.target.value })}
-                          />
-                        </td>
-                        <td>
-                          <input
-                            className="inline-input"
-                            type="date"
-                            value={editData.date}
-                            onChange={(e) => setEditData({ ...editData, date: e.target.value })}
-                          />
-                        </td>
-                        <td>
-                          <input
-                            className="inline-input"
-                            type="number"
-                            step="0.01"
-                            value={editData.amount}
-                            onChange={(e) => setEditData({ ...editData, amount: e.target.value })}
-                            style={{ maxWidth: 90 }}
-                          />
-                        </td>
-                        <td>
-                          <div style={{ display: "flex", gap: 4 }}>
-                            <button className="income-action-btn edit" onClick={() => handleSaveEdit(inc.id)}>✓ Guardar</button>
-                            <button className="income-action-btn" onClick={() => setEditId(null)}>✕</button>
-                          </div>
-                        </td>
-                      </tr>
-                    ) : (
-                      <tr key={inc.id}>
-                        <td>{inc.description || inc.source || "—"}</td>
-                        <td>
-                          <span className={`income-type ${inc.type === "salário" ? "income-type--salary" : "income-type--other"}`}>
-                            {inc.type || "outro"}
-                          </span>
-                        </td>
-                        <td className="income-date">{formatDate(inc.date)}</td>
-                        <td className="income-amount">{formatEur(inc.amount)}</td>
-                        <td>
-                          <div style={{ display: "flex", gap: 4 }}>
-                            <button className="income-action-btn edit" onClick={() => startEdit(inc)}>✎ Editar</button>
-                            <button className="income-action-btn delete" onClick={() => handleDelete(inc.id)}>✕</button>
-                          </div>
-                        </td>
-                      </tr>
-                    )
-                  )}
+                  {filtered.map((inc) => (
+                    <tr key={inc.id}>
+                      <td className="income-date">{formatDate(inc.date)}</td>
+                      {/* SERVE APENAS PARA DAR DEBUG */}
+                      {/* <td className="income-date">{inc.id}</td> */}
+                      <td className="income-amount">{formatEur(inc.amount)}</td>
+                      <td>
+                        <div style={{ display: "flex", gap: 4 }}>
+                          <button className="income-action-btn edit" onClick={() => setEditTarget(inc)}>✎ Editar</button>
+                          <button className="income-action-btn delete" onClick={() => handleDelete(inc.id)}>✕</button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
                   <tr className="incomes-total-row">
-                    <td colSpan={3} style={{ fontFamily: "Share Tech Mono", fontSize: 10, letterSpacing: 2, color: "var(--text-muted)", textTransform: "uppercase" }}>
+                    <td style={{ fontFamily: "Share Tech Mono", fontSize: 10, letterSpacing: 2, color: "var(--text-muted)", textTransform: "uppercase" }}>
                       Total filtrado
                     </td>
                     <td className="income-amount">{formatEur(totalFiltered)}</td>
@@ -377,6 +342,14 @@ export default function IncomesPage({ setAuth }) {
           </div>
         </div>
       </main>
+
+      {editTarget && (
+        <EditModal
+          income={editTarget}
+          onSave={handleSaveEdit}
+          onClose={() => setEditTarget(null)}
+        />
+      )}
 
       {toast && <Toast msg={toast.msg} type={toast.type} onDone={() => setToast(null)} />}
     </div>
