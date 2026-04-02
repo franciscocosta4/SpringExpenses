@@ -5,6 +5,7 @@ import com.example.springexpenses.repository.UserRepository;
 import com.example.springexpenses.model.Income;
 import com.example.springexpenses.model.User;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,9 +24,20 @@ public class IncomeService {
     /**
      * Buscar incomes do user
      */
-    public List<Income> getAllUserIncomes(Long userId) {
+    public List<Income> getUserIncomesList(Long userId) {
         return incomeRepository.findByUserId(userId);
     }
+
+    public BigDecimal getUserTotalIncome(String email) {
+        // Vai buscar a soma diretamente à base de dados
+        BigDecimal total = incomeRepository.sumTotalByUserEmail(email);
+
+        // IMPORTANTE:
+        // Se não existirem registos, a BD devolve null
+        // garantimos que nunca devolvemos null ao resto da app
+        return total != null ? total : BigDecimal.ZERO;
+    }
+
 
     /**
      * Criar income associado ao user autenticado

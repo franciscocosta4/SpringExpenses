@@ -11,9 +11,11 @@ function StatCard({ label, value, sub, badge, variant = "green" }) {
       {badge && (
         <span
           className={`stat-card-badge ${
-            badge.startsWith("+") ? "stat-card-badge--up" :
-            badge.startsWith("!") ? "stat-card-badge--warn" :
-            "stat-card-badge--down"
+            badge.startsWith("+")
+              ? "stat-card-badge--up"
+              : badge.startsWith("!")
+                ? "stat-card-badge--warn"
+                : "stat-card-badge--down"
           }`}
         >
           {badge}
@@ -61,18 +63,23 @@ export default function DashboardPage({ setAuth }) {
     const opts = { credentials: "include", headers };
 
     Promise.all([
-      fetch(`${API}/dashboard`, opts),
-      fetch(`${API}/expenses`, opts),
-      fetch(`${API}/incomes`, opts),
+      fetch(`${API}/dashboard`, opts), // ← dados agregados (totais, médias, etc.)
+      fetch(`${API}/expenses`, opts), // ← lista de despesas
+      fetch(`${API}/incomes`, opts), // ← lista de receitas
     ])
       .then(async ([dashRes, expRes, incRes]) => {
+        // Se o dashboard falhar → erro de autenticação
         if (!dashRes.ok) throw new Error("Sessão expirada ou acesso negado");
-        const dash = await dashRes.json().catch(() => ({}));
+
+        // ↓ Aqui estás a converter a resposta JSON da API
+        const dash = await dashRes.json().catch(() => ({}));  
         const exp = expRes.ok ? await expRes.json().catch(() => []) : [];
         const inc = incRes.ok ? await incRes.json().catch(() => []) : [];
-        setData(dash);
-        setExpenses(Array.isArray(exp) ? exp : []);
-        setIncomes(Array.isArray(inc) ? inc : []);
+
+        // ↓ Guardas os dados vindos da API no estado
+        setData(dash); // ← vem diretamente da API /dashboard
+        setExpenses(exp); // ← vem da API /expenses
+        setIncomes(inc); // ← vem da API /incomes
       })
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
@@ -80,7 +87,11 @@ export default function DashboardPage({ setAuth }) {
 
   const totalExpenses = data?.totalExpenses ?? data?.total_expenses ?? null;
   const totalIncome = data?.totalIncome ?? data?.total_income ?? null;
-  const balance = data?.balance ?? (totalIncome != null && totalExpenses != null ? totalIncome - totalExpenses : null);
+  const balance =
+    data?.balance ??
+    (totalIncome != null && totalExpenses != null
+      ? totalIncome - totalExpenses
+      : null);
   const avgExpenses = data?.avgExpenses ?? data?.avg_expenses ?? null;
   const isOverspending = data?.overspending ?? data?.isOverspending ?? false;
   const currentMonthExp = data?.currentMonthExpenses ?? null;
@@ -89,10 +100,19 @@ export default function DashboardPage({ setAuth }) {
   const recentIncomes = incomes.slice(0, 6);
 
   const formatTime = (d) =>
-    d.toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    d.toLocaleTimeString("pt-PT", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
 
   const formatFullDate = (d) =>
-    d.toLocaleDateString("pt-PT", { weekday: "short", day: "2-digit", month: "short", year: "numeric" });
+    d.toLocaleDateString("pt-PT", {
+      weekday: "short",
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
 
   return (
     <div className="dashboard-layout">
@@ -109,7 +129,9 @@ export default function DashboardPage({ setAuth }) {
               <span className="topbar-live-dot" />
               LIVE
             </div>
-            <div className="topbar-date">{formatTime(time)} · {formatFullDate(time)}</div>
+            <div className="topbar-date">
+              {formatTime(time)} · {formatFullDate(time)}
+            </div>
           </div>
         </div>
 
@@ -130,9 +152,18 @@ export default function DashboardPage({ setAuth }) {
             <div className="stats-grid">
               {[1, 2, 3, 4].map((i) => (
                 <div key={i} className="stat-card">
-                  <div className="skeleton" style={{ height: 10, width: "60%", marginBottom: 12 }} />
-                  <div className="skeleton" style={{ height: 28, width: "80%", marginBottom: 8 }} />
-                  <div className="skeleton" style={{ height: 8, width: "40%" }} />
+                  <div
+                    className="skeleton"
+                    style={{ height: 10, width: "60%", marginBottom: 12 }}
+                  />
+                  <div
+                    className="skeleton"
+                    style={{ height: 28, width: "80%", marginBottom: 8 }}
+                  />
+                  <div
+                    className="skeleton"
+                    style={{ height: 8, width: "40%" }}
+                  />
                 </div>
               ))}
             </div>
@@ -182,10 +213,13 @@ export default function DashboardPage({ setAuth }) {
                 <div className="alert-overspend">
                   <span className="alert-overspend-icon">⚠</span>
                   <div className="alert-overspend-text">
-                    <div className="alert-overspend-title">Alerta: Gastos Acima da Média</div>
+                    <div className="alert-overspend-title">
+                      Alerta: Gastos Acima da Média
+                    </div>
                     <div className="alert-overspend-desc">
-                      Este mês gastaste {formatEur(currentMonthExp)} — acima da média de {formatEur(avgExpenses)} / 90 dias.
-                      Revê as tuas despesas.
+                      Este mês gastaste {formatEur(currentMonthExp)} — acima da
+                      média de {formatEur(avgExpenses)} / 90 dias. Revê as tuas
+                      despesas.
                     </div>
                   </div>
                 </div>
@@ -196,7 +230,9 @@ export default function DashboardPage({ setAuth }) {
                     <div className="alert-ok-title">Gastos Dentro da Média</div>
                     <div className="alert-ok-desc">
                       Os teus gastos estão dentro dos limites históricos.
-                      {avgExpenses ? ` Média 90 dias: ${formatEur(avgExpenses)}.` : ""}
+                      {avgExpenses
+                        ? ` Média 90 dias: ${formatEur(avgExpenses)}.`
+                        : ""}
                     </div>
                   </div>
                 </div>
@@ -210,7 +246,9 @@ export default function DashboardPage({ setAuth }) {
                   </div>
                   <div className="avg-bar-container">
                     <div className="avg-bar-label">
-                      <span>Este mês: {formatEur(currentMonthExp ?? totalExpenses)}</span>
+                      <span>
+                        Este mês: {formatEur(currentMonthExp ?? totalExpenses)}
+                      </span>
                       <span>Média 90d: {formatEur(avgExpenses)}</span>
                     </div>
                     <div className="avg-bar-track">
@@ -219,7 +257,9 @@ export default function DashboardPage({ setAuth }) {
                         style={{
                           width: `${Math.min(
                             100,
-                            ((currentMonthExp ?? totalExpenses) / (avgExpenses * 1.5)) * 100
+                            ((currentMonthExp ?? totalExpenses) /
+                              (avgExpenses * 1.5)) *
+                              100,
                           )}%`,
                         }}
                       />
@@ -234,7 +274,9 @@ export default function DashboardPage({ setAuth }) {
                 <div className="table-panel">
                   <div className="table-panel-header">
                     <span className="table-panel-title">Últimas Despesas</span>
-                    <Link to="/expenses" className="table-panel-btn">Ver todas →</Link>
+                    <Link to="/expenses" className="table-panel-btn">
+                      Ver todas →
+                    </Link>
                   </div>
                   {recentExpenses.length === 0 ? (
                     <div className="table-empty">Sem despesas registadas</div>
@@ -258,7 +300,9 @@ export default function DashboardPage({ setAuth }) {
                               </span>
                             </td>
                             <td>{formatDate(e.date)}</td>
-                            <td className="amount-red">{formatEur(e.amount)}</td>
+                            <td className="amount-red">
+                              {formatEur(e.amount)}
+                            </td>
                           </tr>
                         ))}
                       </tbody>
@@ -270,7 +314,9 @@ export default function DashboardPage({ setAuth }) {
                 <div className="table-panel">
                   <div className="table-panel-header">
                     <span className="table-panel-title">Últimas Receitas</span>
-                    <Link to="/incomes" className="table-panel-btn">Ver todas →</Link>
+                    <Link to="/incomes" className="table-panel-btn">
+                      Ver todas →
+                    </Link>
                   </div>
                   {recentIncomes.length === 0 ? (
                     <div className="table-empty">Sem receitas registadas</div>
@@ -289,10 +335,14 @@ export default function DashboardPage({ setAuth }) {
                           <tr key={i.id}>
                             <td>{i.description || i.source || "—"}</td>
                             <td>
-                              <span className="category-badge">{i.type || "outro"}</span>
+                              <span className="category-badge">
+                                {i.type || "outro"}
+                              </span>
                             </td>
                             <td>{formatDate(i.date)}</td>
-                            <td className="amount-green">{formatEur(i.amount)}</td>
+                            <td className="amount-green">
+                              {formatEur(i.amount)}
+                            </td>
                           </tr>
                         ))}
                       </tbody>

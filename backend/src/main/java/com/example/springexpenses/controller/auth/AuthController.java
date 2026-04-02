@@ -60,15 +60,6 @@ public class AuthController {
 
         return ResponseEntity.ok("Login com sucesso");
     }
-
-    @GetMapping("/dashboard")
-    public ResponseEntity<String> getDashboardData(Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(401).body("Não autorizado");
-        }
-        return ResponseEntity.ok("Bem-vindo, " + authentication.getName() + "! Estes são os teus dados privados.");
-    }
-
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request) {
 

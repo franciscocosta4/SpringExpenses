@@ -1,8 +1,6 @@
 package com.example.springexpenses.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,7 +17,6 @@ import com.example.springexpenses.service.IncomeService;
 import com.example.springexpenses.repository.UserRepository;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/incomes")
@@ -40,7 +37,7 @@ public class IncomeController {
         String email = authentication.getName();
         User user = userRepository.findByEmail(email);
 
-        return incomeService.getAllUserIncomes(user.getId());
+        return incomeService.getUserIncomesList(user.getId());
     }
 
     /**
@@ -59,21 +56,26 @@ public class IncomeController {
     /**
      * Atualizar income
      */
-    @PutMapping("/{id}")  // Mapeia HTTP PUT para atualizar um recurso existente.
+    @PutMapping("/{id}") // Mapeia HTTP PUT para atualizar um recurso existente.
     public Income updateIncome(@PathVariable Long id, Authentication authentication, @RequestBody Income income) {
 
         String email = authentication.getName();
         User user = userRepository.findByEmail(email);
 
-        return incomeService.updateIncome(user.getId(),id,  income);
+        return incomeService.updateIncome(user.getId(), id, income);
     }
+
+    /**
+     * Apagar income
+     */
+
     // DELETE: DELETE /incomes/{id}
-    @DeleteMapping("/{id}")  // Mapeia HTTP DELETE para apagar um recurso.
+    @DeleteMapping("/{id}") // Mapeia HTTP DELETE para apagar um recurso.
     public boolean deleteIncome(@PathVariable Long id, Authentication authentication) {
 
         String email = authentication.getName();
         User user = userRepository.findByEmail(email);
 
-        return incomeService.deleteIncome(user.getId(),id);
+        return incomeService.deleteIncome(user.getId(), id);
     }
 }
