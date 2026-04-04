@@ -35,7 +35,10 @@ public class User implements UserDetails {
 
 
     @OneToMany(mappedBy = "user")
-    private List<Income> incomes;
+    private List<Income> incomes; 
+
+    @OneToMany(mappedBy = "user")
+    private List<Expense> Expenses;
 
     // UserDetails — obrigatório implementar:
 
