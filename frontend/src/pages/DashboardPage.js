@@ -296,7 +296,7 @@ export default function DashboardPage({ setAuth }) {
                             <td>{e.description || "—"}</td>
                             <td>
                               <span className="category-badge">
-                                {e.category || "outro"}
+                                {e.category?.name || "outro"}
                               </span>
                             </td>
                             <td>{formatDate(e.date)}</td>
@@ -336,7 +336,7 @@ export default function DashboardPage({ setAuth }) {
                             <td>{i.description || i.source || "—"}</td>
                             <td>
                               <span className="category-badge">
-                                {i.type || "outro"}
+                                {i.type?.name || "outro"}
                               </span>
                             </td>
                             <td>{formatDate(i.date)}</td>

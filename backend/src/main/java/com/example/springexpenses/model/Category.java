@@ -1,5 +1,5 @@
 package com.example.springexpenses.model;
- 
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -20,16 +20,24 @@ public class Category {
 
     @Column(nullable = false)
     private String name;
-    
+
     @OneToMany(mappedBy = "category")
     private List<Expense> Expenses;
-    
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
-
     @Column(nullable = false, updatable = false, name = "created_at")
     @CreatedDate
     private LocalDateTime createdAt;
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
 }

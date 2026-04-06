@@ -1,7 +1,8 @@
 package com.example.springexpenses.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.Authentication; // objeto do spring security 
+// que permite trabalhar com o user autenticado
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

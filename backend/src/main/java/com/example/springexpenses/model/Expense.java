@@ -30,15 +30,15 @@ public class Expense {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "category_id")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
     @Column(nullable = false, updatable = false, name = "created_at")
     @CreatedDate
     private LocalDateTime createdAt;
-    
-    //getters e setters 
+
+    // getters e setters
 
     public Long getId() {
         return id;
@@ -59,7 +59,7 @@ public class Expense {
     public void setCategory(Category category) {
         this.category = category;
     }
-    
+
     public String getDescription() {
         return description;
     }
@@ -92,6 +92,4 @@ public class Expense {
         this.createdAt = createdAt;
     }
 
-
 }
-

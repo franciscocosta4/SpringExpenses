@@ -1,7 +1,6 @@
 package com.example.springexpenses.repository;
 
 import com.example.springexpenses.model.Expense;
-import com.example.springexpenses.model.Income;
 
 import org.springframework.data.jpa.repository.JpaRepository; // Interface base do Spring Data JPA.
 import org.springframework.data.jpa.repository.Query;

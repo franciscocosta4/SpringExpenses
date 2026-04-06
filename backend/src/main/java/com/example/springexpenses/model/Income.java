@@ -22,7 +22,7 @@ public class Income {
     @Column(nullable = false)
     private BigDecimal amount;
 
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false)
     private LocalDate date;
 
     @ManyToOne
