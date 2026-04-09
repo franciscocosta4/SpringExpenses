@@ -14,14 +14,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.springexpenses.model.Expense;
 import com.example.springexpenses.dto.ExpenseRequest;
-import com.example.springexpenses.model.Category;
 import com.example.springexpenses.model.User;
 import com.example.springexpenses.service.ExpenseService;
-import com.example.springexpenses.service.CategoryService;
 import com.example.springexpenses.repository.UserRepository;
 
 import java.util.List;
-import org.springframework.web.bind.annotation.RequestParam;
 
 
 @RestController
@@ -32,19 +29,11 @@ public class ExpenseController {
     private ExpenseService expenseService; 
     
     @Autowired
-    private CategoryService categoryService; 
-
-    @Autowired
     private UserRepository userRepository;
 
-
-    @GetMapping("/categories")
-    public List<Category> getUserCategorys(Authentication authentication) {
-        String email =  authentication.getName();
-        User user = userRepository.findByEmail(email);
-        return categoryService.getUserCategorys(user.getId());
-    }
-
+     /**
+     * Mostrar depesas do user
+     */
     @GetMapping
     public List<Expense> getExpenses(Authentication authentication) {
 
@@ -54,6 +43,9 @@ public class ExpenseController {
         return expenseService.getUserExpensesList(user.getId());
     }
 
+     /**
+     * Criar expense
+     */
     @PostMapping
     public Expense createExpense(@RequestBody ExpenseRequest dto,Authentication authentication ) {
         String email =  authentication.getName();
@@ -63,6 +55,31 @@ public class ExpenseController {
 
     }
     
+    /**
+     * Atualizar expense
+     */
+    @PutMapping("/{id}") // Mapeia HTTP PUT para atualizar um recurso existente.
+    public Expense updateExpense(@PathVariable Long id, Authentication authentication, @RequestBody Expense expense) {
+
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email);
+
+        return expenseService.updateExpense(user.getId(), id, expense);
+    }
+
+    /**
+     * Apagar expense
+     */
+
+    // DELETE: DELETE /expenses/{id}
+    @DeleteMapping("/{id}") // Mapeia HTTP DELETE para apagar um recurso.
+    public boolean deleteExpense(@PathVariable Long id, Authentication authentication) {
+
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email);
+
+        return expenseService.deleteExpense(user.getId(), id);
+    }
     
 
     

@@ -30,7 +30,9 @@ public class CategoryController {
 
     @Autowired
     private UserRepository userRepository;
-
+    /**
+     * Mostrar categorias do user (por enquanto ainda só é util para os forms )
+     */
     @GetMapping
     public List<Category> getUserCategorys(Authentication authentication) {
         String email =  authentication.getName();
