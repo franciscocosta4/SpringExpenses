@@ -52,12 +52,12 @@ The database supports multiple users and ensures that all data is user-specific.
 
 ---
 
-## Future Enhancements
-
-* Add a `purchase_goal` table for user-defined goals (e.g., car, vacation, concert)
-* Add trend visualizations (charts / graphs)
-* Add notifications for budget or overspending alerts
-* Support CSV export of expenses and income
-
-
-If you want, I can also **make a visual dbdiagram.io diagram** version of this updated schema for documentation and planning purposes. This would complement your README nicely. Do you want me to do that next?
+## TODO:
+- Calculate average expenses over the last 90 days
+- Detect overspending (compare current month with 90-day average)
+- Improved category system
+- Filter expenses by category
+- Monthly budget tracking
+- Alerts for overspending or budget limits
+- Export expenses to CSV
+- Goal-based analysis (e.g. checking if a purchase is affordable)
