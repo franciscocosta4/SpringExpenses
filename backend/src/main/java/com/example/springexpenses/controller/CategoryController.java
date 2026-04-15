@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.springexpenses.model.Category;
+import com.example.springexpenses.model.Income;
 import com.example.springexpenses.model.User;
 import com.example.springexpenses.service.CategoryService;
 import com.example.springexpenses.repository.UserRepository;
@@ -40,6 +41,31 @@ public class CategoryController {
         return categoryService.getUserCategorys(user.getId());
     }
 
+    @PostMapping
+    public Category createCategory(Authentication authentication, @RequestBody Category category) {
+        String email =  authentication.getName();
+        User user = userRepository.findByEmail(email);
+        return categoryService.createCategory(user.getId(), category);
+    }
+
+    @PutMapping("/{id}") // Mapeia HTTP PUT para atualizar um recurso existente.
+    public Category updateCategory(@PathVariable Long id, Authentication authentication, @RequestBody Category category) {
+
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email);
+
+        return categoryService.updateCategory(user.getId(), id, category);
+    }
+    
+
+    @DeleteMapping("/{id}") // Mapeia HTTP DELETE para apagar um recurso.
+    public boolean deleteCategory(@PathVariable Long id, Authentication authentication) {
+
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email);
+
+        return categoryService.deleteCategory(user.getId(), id);
+    }
 
     
 }
