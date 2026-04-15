@@ -1,8 +1,9 @@
 # SpringExpenses
 
-## Overview
-
 SpringExpenses is a web application made with springboot and react for managing personal finances. The system allows users to track incomes and expenses, categorize them, and get insights about spending behavior. The primary goal is to help users monitor if they are overspending and provide summary and forecast reports based on historical data.
+
+<img width="1782" height="881" alt="image" src="https://github.com/user-attachments/assets/f67b6c12-face-4fcb-99de-30b1a06a31d1" />
+<img width="1782" height="880" alt="image" src="https://github.com/user-attachments/assets/3961a6c2-d0cd-4271-810e-3945d9d68cf0" />
 
 ---
 
