@@ -10,7 +10,7 @@ SpringExpenses is a web application made with springboot and react for managing 
 ## Stack
 
 * **Backend:** Java / Spring Boot
-* **Frontend:** React 
+* **Frontend:** React | The frontend was developed with AI tools.
 * **Persistence:** JPA / Hibernate
 * **Database:** PostgreSQL 
 * **Architecture:** MVC with Controller, Service, Repository separation
